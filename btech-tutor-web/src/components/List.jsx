@@ -1,63 +1,156 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 const List = () => {
+  const { state } = useLocation();
+  const { subjects = [], scheme, branch, semester } = state || {};
+
+  const [accordionContent, setAccordionContent] = useState({}); // Stores content by subject id
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  const toggleAccordion = async (index, subjectId) => {
+    setActiveIndex(activeIndex === index ? null : index);
+
+    if (!accordionContent[subjectId]) {
+      try {
+        // Fetch data only when accordion is opened for the first time
+        const response = await fetch(`https://btechtutors.onrender.com/api/get_contents/?subid=${subjectId}`);
+        if (!response.ok) throw new Error("Failed to fetch subject content");
+        const data = await response.json();
+
+        // Store content based on subjectId
+        setAccordionContent((prevContent) => ({
+          ...prevContent,
+          [subjectId]: data[0] // Assuming response contains a single subject object
+        }));
+      } catch (error) {
+        console.error("Error fetching subject content:", error);
+      }
+    }
+  };
+
+  const handleViewPDF = async (subname, module) => {
+    try {
+      const response = await fetch(`https://btechtutors.onrender.com/api/get_notes?subname=${subname}&module=${module}`);
+      if (!response.ok) throw new Error("Failed to fetch PDF link");
+      const data = await response.json();
+      if (data.length > 0) {
+        window.open(data[0].fileblob, '_blank') // Redirect to the PDF link
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    
-<>
-<h1 className='w-3/5 mt-16 mx-auto text-3xl mb-5'>List of Contents</h1>
-<div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-inactive-classes="text-gray-500 dark:text-gray-400" className='w-3/5 mx-auto'>
-  <h2 id="accordion-flush-heading-1">
-    <button type="button" class="flex items-center justify-between w-full py-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 gap-3" data-accordion-target="#accordion-flush-body-1" aria-expanded="true" aria-controls="accordion-flush-body-1">
-      <NavLink to="/content"><span>Basics of Electrical and Electronics Engineering (BEEE)</span></NavLink>
-      <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
-      </svg>
-    </button>
-  </h2>
-  <div id="accordion-flush-body-1" class="hidden" aria-labelledby="accordion-flush-heading-1">
-    <div class="py-5 border-b border-gray-200 dark:border-gray-700">
-      <p class="mb-2 text-gray-500 dark:text-gray-400">Flowbite is an open-source library of interactive components built on top of Tailwind CSS including buttons, dropdowns, modals, navbars, and more.</p>
-      <p class="text-gray-500 dark:text-gray-400">Check out this guide to learn how to <a href="/docs/getting-started/introduction/" class="text-blue-600 dark:text-blue-500 hover:underline">get started</a> and start developing websites even faster with components on top of Tailwind CSS.</p>
-    </div>
-  </div>
-  <h2 id="accordion-flush-heading-2">
-    <button type="button" class="flex items-center justify-between w-full py-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 gap-3" data-accordion-target="#accordion-flush-body-2" aria-expanded="false" aria-controls="accordion-flush-body-2">
-      <span>Basics of Civil and Mechanical engineering (BCME)</span>
-      <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
-      </svg>
-    </button>
-  </h2>
-  <div id="accordion-flush-body-2" class="hidden" aria-labelledby="accordion-flush-heading-2">
-    <div class="py-5 border-b border-gray-200 dark:border-gray-700">
-      <p class="mb-2 text-gray-500 dark:text-gray-400">Flowbite is first conceptualized and designed using the Figma software so everything you see in the library has a design equivalent in our Figma file.</p>
-      <p class="text-gray-500 dark:text-gray-400">Check out the <a href="https://flowbite.com/figma/" class="text-blue-600 dark:text-blue-500 hover:underline">Figma design system</a> based on the utility classes from Tailwind CSS and components from Flowbite.</p>
-    </div>
-  </div>
-  <h2 id="accordion-flush-heading-3">
-    <button type="button" class="flex items-center justify-between w-full py-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 gap-3" data-accordion-target="#accordion-flush-body-3" aria-expanded="false" aria-controls="accordion-flush-body-3">
-      <span>Engineering Graphics</span>
-      <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
-      </svg>
-    </button>
-  </h2>
-  <div id="accordion-flush-body-3" class="hidden" aria-labelledby="accordion-flush-heading-3">
-    <div class="py-5 border-b border-gray-200 dark:border-gray-700">
-      <p class="mb-2 text-gray-500 dark:text-gray-400">The main difference is that the core components from Flowbite are open source under the MIT license, whereas Tailwind UI is a paid product. Another difference is that Flowbite relies on smaller and standalone components, whereas Tailwind UI offers sections of pages.</p>
-      <p class="mb-2 text-gray-500 dark:text-gray-400">However, we actually recommend using both Flowbite, Flowbite Pro, and even Tailwind UI as there is no technical reason stopping you from using the best of two worlds.</p>
-      <p class="mb-2 text-gray-500 dark:text-gray-400">Learn more about these technologies:</p>
-      <ul class="ps-5 text-gray-500 list-disc dark:text-gray-400">
-        <li><a href="https://flowbite.com/pro/" class="text-blue-600 dark:text-blue-500 hover:underline">Flowbite Pro</a></li>
-        <li><a href="https://tailwindui.com/" rel="nofollow" class="text-blue-600 dark:text-blue-500 hover:underline">Tailwind UI</a></li>
-      </ul>
-    </div>
-  </div>
-</div>
-</>
+    <div className='font-body'>
+      <h1 className='w-4/5 mt-16 text-3xl mb-5 mx-auto text-primary'>Table of Contents for <span className='text-secondary font-bold'>S{semester} {branch}</span> </h1>
+      <div id="accordion-example" className='w-4/5 mx-auto min-h-screen'>
+        {subjects.map((subject, index) => (
+          <div key={subject.id}>
+            <h2 id={`accordion-example-heading-${index}`}>
+              <button
+                type="button"
+                className={`flex items-center justify-between w-full my-5 p-5 font-medium rtl:text-right text-white ${activeIndex === index ? 'bg-secondary' : 'bg-tertiary'}`}
+                aria-expanded={activeIndex === index}
+                onClick={() => toggleAccordion(index, subject.id)} // Pass subject.id here
+              >
+                <span>{subject.subject_name}</span>
+                <svg className={`w-6 h-6 ${activeIndex === index ? 'rotate-180' : ''} shrink-0`} fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 011.414 1.414l-4 4a1 1 01-1.414 0l-4-4a1 1 010-1.414z" clipRule="evenodd"></path>
+                </svg>
+              </button>
+            </h2>
+            <div id={`accordion-example-body-${index}`} className={`${activeIndex === index ? '' : 'hidden'}`}>
+              <div className="p-5 w-3/5">
+                {/* Check if accordion content for this subjectId exists before rendering */}
+                {accordionContent[subject.id] ? (
+                  <div>
+                    {/* Render syllabus link */}
+                    {accordionContent[subject.id].syllabus ? (
+                      <div className="mb-2 text-gray-700 flex justify-between">
+                        <p>Syllabus</p>
+                        <a
+                          href={accordionContent[subject.id].syllabus.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className='text-blue-500 cursor-pointer'
+                        >
+                          <FaExternalLinkAlt />
+                        </a>
+                      </div>
+                    ) : (
+                      <p>No syllabus available</p>
+                    )}
 
-  )
-}
+                    {/* Render question paper links */}
+                    {accordionContent[subject.id].question_papers && accordionContent[subject.id].question_papers.length > 0 ? (
+                      <div className="mb-2 text-gray-700 flex justify-between">
+                        <p>Previous Year Questions</p>
+                        <a
+                          href={accordionContent[subject.id].question_papers[0]?.filelink.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className='text-blue-500 cursor-pointer'
+                        >
+                          <FaExternalLinkAlt />
+                        </a>
+                      </div>
+                    ) : (
+                      <p>No question papers available</p>
+                    )}
 
-export default List
+                    {/* Render demo link if available */}
+                    {accordionContent[subject.id].demolink && (
+                      <div className="mb-2 text-gray-700 flex justify-between">
+                        <p>Demo Link</p>
+                        <a
+                          href={accordionContent[subject.id].demolink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className='text-blue-500 cursor-pointer'
+                        >
+                          <FaExternalLinkAlt />
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Render course link if available */}
+                    {accordionContent[subject.id].courselink && (
+                      <div className="mb-2 text-gray-700 flex justify-between">
+                        <p>Course Link</p>
+                        <a
+                          href={accordionContent[subject.id].courselink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className='text-blue-500 cursor-pointer'
+                        >
+                          <FaExternalLinkAlt />
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Display modules */}
+                    {[1, 2, 3, 4, 5].map((moduleIndex) => (
+                      <div key={moduleIndex} className='mb-2 text-gray-700 flex justify-between'>
+                        <span>Module {moduleIndex}</span>
+                        <button onClick={() => handleViewPDF(subject.subject_name, moduleIndex)}>
+                          View PDF
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>Loading content...</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default List;

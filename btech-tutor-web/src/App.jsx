@@ -7,7 +7,9 @@ import Bundle from "./pages/Bundle"
 import Internship from "./pages/Internship"
 import Project from "./pages/Project"
 import List from "./components/List"
-import Content from "./components/Content"
+import Footer from "./components/Footer"
+import GateList from "./components/GateList"
+
 
 
 function App() {
@@ -21,7 +23,7 @@ function App() {
         <Route path='/internship' element={<Internship />} />
         <Route path='/project' element={<Project />} />
         <Route path='/list' element={<List />} />
-        <Route path='/content' element={<Content />} />
+        <Route path='/gate-list' element={<GateList />} />
         <Route path='*' element={<h1>Not Found</h1>} />
       </Route>
     </Routes>
@@ -30,9 +32,10 @@ function App() {
 
 function Layout() {
   return (
-    <div>
-      <Navbar />
+    <div className='flex flex-col min-h-screen'>
+      <Navbar/>
       <Outlet/>
+      <Footer />
     </div>
   )
 }
